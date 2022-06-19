@@ -4,9 +4,17 @@ LOG=/var/log/audless/play.log
 TRACKLOG=/var/log/audless/track.log
 MAXLOG=$((1024 * 1024))
 
+dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+pidfile=${HOME}/play_next.pid
+
 function log {
-    echo $(date "+%Y-%m-%d %T") :: $*
+    echo $(date "+%Y-%m-%d %T") :: $* >> $LOG 2>&1
 }
+
+if [ -f ${pidfile} ]; then
+    log "already playing, found ${pidfile}"
+    exit 1
+fi
 
 # truncate logfiles if too big
 if [ -f $LOG ]; then
@@ -24,16 +32,8 @@ if [ -f $TRACKLOG ]; then
     fi
 fi
 
-dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
-pidfile=${HOME}/play_next.pid
-
-if [ -f ${pidfile} ]; then
-    log "already playing, found ${pidfile}"
-    exit 1
-fi
-
 activation=$(sqlite3 ${dir}/audless.db "SELECT value FROM config WHERE key='activation_bytes'")
-next_up=$(sqlite3 ${dir}/audless.db "SELECT file,pos FROM queue WHERE pos <= end ORDER BY rank DESC LIMIT 1")
+next_up=$(sqlite3 ${dir}/audless.db "SELECT file,pos FROM queue WHERE pos <= end-30 ORDER BY rank DESC LIMIT 1")
 
 if [ "${next_up}" = "" ]; then
     log "queue is empty"
@@ -45,18 +45,18 @@ seek=$(echo $next_up | awk -F'|' '{print $2}')
 
 log "starting ${file} at ${seek}"
 
-SDL_AUDIODRIVER=alsa AUDIODEV=hw ffplay -activation_bytes ${activation} \
+SDL_AUDIODRIVER=alsa AUDIODEV=hw nohup ffplay \
+    -activation_bytes ${activation} \
     -hide_banner \
     -stats \
     -nodisp \
-    -autoexit \
     -ss ${seek} \
-    "${file}" >>$LOG 2>&1 &
+    "${file}" >/dev/null 2>&1 &
 
 pid=$!
 disown ${pid}
 
-log "creating ${pidfile}"
+log "creating ${pidfile} with ${pid}"
 echo ${pid} > ${pidfile}
 
 log "launching tracker"
