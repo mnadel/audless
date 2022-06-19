@@ -18,14 +18,14 @@ fi
 
 # truncate logfiles if too big
 if [ -f $LOG ]; then
-    sz=$(stat -f%z $LOG)
+    sz=$(stat -c%s $LOG)
     if [ $sz -gt $MAXLOG ]; then
         echo -n > $LOG
         log "rolled $LOG"
     fi
 fi
 if [ -f $TRACKLOG ]; then
-    sz=$(stat -f%z $TRACKLOG)
+    sz=$(stat -c%s $TRACKLOG)
     if [ $sz -gt $MAXLOG ]; then
         echo -n > $TRACKLOG
         log "rolled $TRACKLOG"
