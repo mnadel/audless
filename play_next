@@ -33,7 +33,7 @@ if [ -f $TRACKLOG ]; then
 fi
 
 activation=$(sqlite3 ${dir}/audless.db "SELECT value FROM config WHERE key='activation_bytes'")
-next_up=$(sqlite3 ${dir}/audless.db "SELECT file,pos FROM queue WHERE pos <= end-30 ORDER BY rank DESC LIMIT 1")
+next_up=$(sqlite3 ${dir}/audless.db "SELECT file,pos FROM queue WHERE pos <= end-30 ORDER BY rank LIMIT 1")
 
 if [ "${next_up}" = "" ]; then
     log "queue is empty"

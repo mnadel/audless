@@ -22,7 +22,7 @@ fi
 
 for f in ${QUEUE}/*.aax; do
     log "queueing: ${f}"
-    sqlite3 ${DIR}/audless.db "INSERT OR IGNORE INTO queue(file) VALUES ('${f}')"
+    sqlite3 ${DIR}/audless.db "INSERT OR IGNORE INTO queue(file,rank) VALUES ('${f}', (SELECT MAX(rank)+1 FROM queue))"
 
     count=$(sqlite3 audless.db "SELECT COUNT(*) FROM queue WHERE file='${f}' AND end=0")
     if [ ${count} -eq 1 ]; then
