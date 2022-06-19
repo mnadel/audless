@@ -6,9 +6,11 @@ trap cleanup SIGINT SIGTERM ERR EXIT
 
 function cleanup {
     trap - SIGINT SIGTERM ERR EXIT
-    kill -9 $(cat ${pidfile})
-    rm $pidfile
-    echo cleaned up pidfile ${pidfile}
+    if [ -f ${pidfile} ]; then
+        kill -9 $(cat ${pidfile})
+        rm $pidfile
+        echo cleaned up pidfile ${pidfile}
+    fi
 }
 
 activation=$(sqlite3 audless.db "SELECT value FROM config WHERE key='activation_bytes'")
@@ -44,7 +46,12 @@ echo tracking player at pid ${pid}
 while [ -f ${pidfile} ]; do
     sleep 30
     pos=$(timeout 0.1 strace -p${pid} -s9999 -e write=1 2>&1 | grep write | tail -1 | awk '{print $3}')
-    sqlite3 audless.db "UPDATE queue SET pos=${pos} WHERE file='${file}'"
-    echo "new pos at ${pos}"
+    if [ "$pos" != "" ]; then
+        sqlite3 audless.db "UPDATE queue SET pos=${pos} WHERE file='${file}'"
+        echo new pos at ${pos}
+    else
+        echo cannot get pos
+        cleanup
+    fi
 done
 
