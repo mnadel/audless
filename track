@@ -1,0 +1,41 @@
+#!/bin/bash
+
+file="$1"
+dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+pidfile=${HOME}/play_next.pid
+
+trap cleanup SIGINT SIGTERM ERR EXIT
+
+function cleanup {
+    trap - SIGINT SIGTERM ERR EXIT
+    if [ -f ${pidfile} ]; then
+        kill -9 $(cat ${pidfile})
+        rm ${pidfile}
+        echo cleaned up pidfile ${pidfile}
+    fi
+}
+
+if [ ! -f ${pidfile} ]; then
+    echo nothing to track
+    exit 1
+fi
+
+pid=$(cat ${pidfile})
+echo tracking player at pid ${pid}
+
+# to record where we're at in the audio stream, we'll inspect the ffplay process via strace.
+# with the `-stats` flag, ffplay will write the current position in the stream (in seconds) to STDOUT.
+# we use strace to capture those `write` syscalls, parse out the position within the stream, then write
+# that to our database (and we use `timeout`` to exit strace after 0.1 seconds).
+while [ -f ${pidfile} ]; do
+    sleep 30
+    pos=$(timeout 0.1 strace -p${pid} -s9999 -e write=1 2>&1 | grep write | tail -1 | awk '{print $3}')
+    if [ "$pos" != "" ]; then
+        sqlite3 ${dir}/audless.db "UPDATE queue SET pos=${pos} WHERE file='${file}'"
+        echo new pos at ${pos}
+    else
+        cleanup
+    fi
+done
+
+echo player exited, no more ${pidfile}
