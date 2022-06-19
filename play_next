@@ -50,8 +50,8 @@ while [ -f ${pidfile} ]; do
         sqlite3 audless.db "UPDATE queue SET pos=${pos} WHERE file='${file}'"
         echo new pos at ${pos}
     else
-        echo cannot get pos
         cleanup
     fi
 done
 
+echo player exited, no more ${pidfile}
