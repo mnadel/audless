@@ -1,6 +1,7 @@
 #!/bin/bash
 
-pidfile=$HOME/play_next.pid
+dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+pidfile=${HOME}/play_next.pid
 
 trap cleanup SIGINT SIGTERM ERR EXIT
 
@@ -8,13 +9,13 @@ function cleanup {
     trap - SIGINT SIGTERM ERR EXIT
     if [ -f ${pidfile} ]; then
         kill -9 $(cat ${pidfile})
-        rm $pidfile
+        rm ${pidfile}
         echo cleaned up pidfile ${pidfile}
     fi
 }
 
-activation=$(sqlite3 audless.db "SELECT value FROM config WHERE key='activation_bytes'")
-next_up=$(sqlite3 audless.db "SELECT file,pos FROM queue WHERE pos <= end ORDER BY rank DESC LIMIT 1")
+activation=$(sqlite3 ${dir}/audless.db "SELECT value FROM config WHERE key='activation_bytes'")
+next_up=$(sqlite3 ${dir}/audless.db "SELECT file,pos FROM queue WHERE pos <= end ORDER BY rank DESC LIMIT 1")
 
 if [ "${next_up}" = "" ]; then
     echo queue is empty
@@ -30,6 +31,7 @@ SDL_AUDIODRIVER=alsa AUDIODEV=hw ffplay -activation_bytes ${activation} \
     -hide_banner \
     -stats \
     -nodisp \
+    -autoexit \
     -ss ${seek} \
     "${file}" > /dev/null 2>&1 &
 
@@ -47,7 +49,7 @@ while [ -f ${pidfile} ]; do
     sleep 30
     pos=$(timeout 0.1 strace -p${pid} -s9999 -e write=1 2>&1 | grep write | tail -1 | awk '{print $3}')
     if [ "$pos" != "" ]; then
-        sqlite3 audless.db "UPDATE queue SET pos=${pos} WHERE file='${file}'"
+        sqlite3 ${dir}/audless.db "UPDATE queue SET pos=${pos} WHERE file='${file}'"
         echo new pos at ${pos}
     else
         cleanup

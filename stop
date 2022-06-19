@@ -1,0 +1,11 @@
+#!/bin/bash
+
+dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+pidfile=${HOME}/play_next.pid
+
+if [ -f ${pidfile} ]; then
+    kill -9 $(cat ${pidfile})
+    rm ${pidfile}
+    echo removed pidfile ${pidfile}
+fi
+
