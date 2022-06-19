@@ -17,6 +17,12 @@ To setup:
 1. Update `refresh_queue` to point to the directory where you store your aax files
 1. Run `refresh_queue`
 
+### Administrivia
+
+1. The user you run as needs permissions to write to `/var/log/audless`
+1. The user you run as needs permissions to write to the directory containing your `.db` file
+1. This is currently configured to output to `alsa :: hw` (in my case, the Pi's HDMI 0 output)
+
 ## Running
 
 Run `play_next`. This will find the next file in your queue that isn't completed, and being playing from the last recorded location.
