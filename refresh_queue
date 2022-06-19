@@ -1,11 +1,24 @@
 #!/bin/bash
 
 QUEUE=/var/books
-dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+DIR=$(dirname $(readlink -f $0))
+LOG=/var/log/audless/queue.log
+MAXLOG=$((1024 * 128))
 
 function log {
     echo $(date "+%Y-%m-%d %T") :: $*
 }
+
+exec >> $LOG 2>&1
+
+# truncate logfile if it's too big
+if [ -f $LOG ]; then
+    sz=$(stat -c%s $LOG)
+    if [ $sz -gt $MAXLOG ]; then
+        echo -n > $LOG
+        log "rolled $LOG"
+    fi
+fi
 
 for f in ${QUEUE}/*.aax; do
     log "queueing: ${f}"
