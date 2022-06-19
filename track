@@ -26,12 +26,12 @@ fi
 
 if [ ! -f ${pidfile} ]; then
     log "nothing to track"
-    exit 1
+    exit 2
 fi
 
 if [ ! -f "$file" ]; then
     log "missing file we're tracking"
-    exit 2
+    exit 3
 fi
 
 pid=$(cat ${pidfile})
