@@ -56,7 +56,9 @@ SDL_AUDIODRIVER=alsa AUDIODEV=hw ffplay -activation_bytes ${activation} \
 pid=$!
 disown ${pid}
 
+log "creating ${pidfile}"
 echo ${pid} > ${pidfile}
 
+log "launching tracker"
 nohup ${dir}/track "${file}" >>$TRACKLOG 2>&1 &
 disown $!
