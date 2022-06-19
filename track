@@ -39,10 +39,12 @@ log "tracking player at pid ${pid}"
 while [ -f ${pidfile} ]; do
     sleep 30
     pos=$(timeout 0.1 strace -p${pid} -s9999 -e write=1 2>&1 | grep write | tail -1 | awk '{print $3}')
+
+    log "marking position at ${pos}"
     if [ "$pos" != "" ]; then
         sqlite3 ${dir}/audless.db "UPDATE queue SET pos=${pos} WHERE file='${file}'"
-        log "new pos at ${pos}"
     else
+        log "cleaning up"
         cleanup
     fi
 done
