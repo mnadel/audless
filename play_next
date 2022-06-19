@@ -26,7 +26,7 @@ seek=$(echo $next_up | awk -F'|' '{print $2}')
 
 echo starting ${file} at ${seek}
 
-ffplay -activation_bytes ${activation} \
+SDL_AUDIODRIVER=alsa AUDIODEV=hw ffplay -activation_bytes ${activation} \
     -hide_banner \
     -stats \
     -nodisp \
