@@ -11,9 +11,14 @@ function log {
     echo $(date "+%Y-%m-%d %T") :: $* >> $LOG 2>&1
 }
 
+if [ ! -f ${dir}/audless.db ]; then
+    log "missing the database, see the README"
+    exit 1
+fi
+
 if [ -f ${pidfile} ]; then
     log "already playing, found ${pidfile}"
-    exit 1
+    exit 2
 fi
 
 # truncate logfiles if too big

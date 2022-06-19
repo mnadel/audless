@@ -19,6 +19,11 @@ function cleanup {
     fi
 }
 
+if [ ! -f ${dir}/audless.db ]; then
+    log "missing the database, see the README"
+    exit 1
+fi
+
 if [ ! -f ${pidfile} ]; then
     log "nothing to track"
     exit 1
