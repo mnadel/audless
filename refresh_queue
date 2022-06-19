@@ -1,0 +1,15 @@
+#!/bin/bash
+
+QUEUE=/var/books
+
+for f in ${QUEUE}/*.aax; do
+    echo queueing: ${f}
+    sqlite3 audless.db "INSERT OR IGNORE INTO queue(file) VALUES ('${f}')"
+
+    count=$(sqlite3 audless.db "SELECT COUNT(*) FROM queue WHERE file='${f}' AND end=0")
+    if [ ${count} -eq 1 ]; then
+        end=$(ffmpeg -i ${f} -f ffmetadata - 2>&1 | grep "Chapter #" | tail -1 | awk '{print $6}')
+        echo ${f} ends at ${end}
+        sqlite3 audless.db "UPDATE queue SET end=${end} WHERE file='${f}'"
+    fi
+done
