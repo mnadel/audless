@@ -13,7 +13,7 @@ To setup:
 ## Setup
 
 1. Update `schema.sql` w/ your activation bytes
-1. Run `echo schema.sql | sqlite3 audless.db`
+1. Run `cat schema.sql | sqlite3 audless.db`
 1. Update `refresh_queue` to point to the directory where you store your aax files
 1. Run `refresh_queue`
 
