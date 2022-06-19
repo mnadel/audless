@@ -30,7 +30,7 @@ if [ ! -f "$file" ]; then
 fi
 
 pid=$(cat ${pidfile})
-log "tracking player at pid ${pid}"
+log "tracking player at pid ${pid} as $USER"
 
 # to record where we're at in the audio stream, we'll inspect the ffplay process via strace.
 # with the `-stats` flag, ffplay will write the current position in the stream (in seconds) to STDOUT.
