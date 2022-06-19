@@ -34,5 +34,5 @@ disown ${pid}
 
 echo ${pid} > ${pidfile}
 
-nohup ${dir}/track >/dev/null 2>&1 &
+nohup ${dir}/track "${file}" >/dev/null 2>&1 &
 disown $!
