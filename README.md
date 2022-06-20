@@ -14,7 +14,7 @@ To setup:
 
 1. Update `schema.sql` w/ your activation bytes
 1. Run `cat schema.sql | sqlite3 audless.db`
-1. Update `refresh_queue` to point to the directory where you store your aax files
+1. Update `QUEUE` in `refresh_queue` to point to the directory where you store your aax files
 1. Run `refresh_queue`
 
 ### Administrivia
@@ -25,7 +25,7 @@ To setup:
 
 ## Running
 
-Run `play_next`. This will find the next file in your queue that isn't completed, and being playing from the last recorded location.
+Run `play_next`. This will find the next file in your queue that isn't fully listened to (within 30s of the stream ending), and begin playing from the last recorded location.
 
 ## Maintenance
 

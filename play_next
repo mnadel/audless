@@ -48,6 +48,15 @@ fi
 file=$(echo $next_up | awk -F'|' '{print $1}')
 seek=$(echo $next_up | awk -F'|' '{print $2}')
 
+if [ ! -f ${file} ]; then
+    log "cannot find ${file}, removing from queue"
+    sqlite3 ${dir}/audless.db "DELETE FROM queue WHERE file='${file}'"
+
+    log "restarting to find next item in queue"
+    /bin/bash $0 $@
+    exit 0
+fi
+
 log "starting ${file} at ${seek}"
 
 SDL_AUDIODRIVER=alsa AUDIODEV=hw nohup ffplay \
