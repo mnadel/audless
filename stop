@@ -3,8 +3,14 @@
 dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 pidfile=${HOME}/play_next.pid
 
+function log {
+    echo $(date "+%Y-%m-%d %T") :: $*
+}
+
 if [ -f ${pidfile} ]; then
     kill -9 $(cat ${pidfile})
+    log "killed $(cat ${pidfile})"
+
     rm ${pidfile}
-    echo removed pidfile ${pidfile}
+    log "removed ${pidfile}"
 fi
