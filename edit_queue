@@ -9,7 +9,7 @@ script_dir=$(dirname $(readlink -f $0))
 
 usage() {
   cat <<EOF
-Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] -t TRACK [-p POSITION] [-r RANK] [-s SPEED]
+Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-l] -t TRACK [-p POSITION] [-r RANK] [-s SPEED]
 
 Script description here.
 
@@ -17,6 +17,7 @@ Available options:
 
 -h, --help      Print this help and exit
 -v, --verbose   Print script debug info
+-l, --list      List tracks
 -t, --track     Enough of the filename to uniquely identify it (required)
 -p, --pos       Set new position in seconds
 -r, --rank      Set new rank
@@ -56,6 +57,7 @@ die() {
 
 parse_params() {
   # default values of variables set from params
+  listing=0
   track=""
   pos=""
   rank=""
@@ -66,6 +68,7 @@ parse_params() {
     -h | --help) usage ;;
     -v | --verbose) set -x ;;
     --no-color) NO_COLOR=1 ;;
+    -l | --list) listing=1 ;;
     -t | --track)
       track="${2-}"
       shift
@@ -90,8 +93,9 @@ parse_params() {
 
   args=("$@")
 
-  # check required params and arguments
-  [[ -z "${track-}" ]] && die "Missing required parameter: track"
+  if [ ${listing} -eq 0 ]; then
+    [[ -z "${track-}" ]] && die "Missing required parameter: track"
+  fi
 
   return 0
 }
@@ -101,6 +105,11 @@ setup_colors
 
 dbfile=${script_dir}/audless.db
 [ ! -f ${dbfile} ] && die "missing database"
+
+if [ ${listing} -eq 1 ]; then
+    sqlite3 ${dbfile} "select * from queue order by rank"
+    exit $?
+fi
 
 where_clause="lower(file) like lower('%${track}%'"
 
