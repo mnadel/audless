@@ -33,7 +33,6 @@ cleanup() {
 
 log() {
     echo $(date "+%Y-%m-%d %T") :: $*
-    echo >&2 -e "${1-}"
 }
 
 setup_colors() {
