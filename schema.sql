@@ -11,3 +11,6 @@ CREATE TABLE IF NOT EXISTS queue (
 );
 
 INSERT OR IGNORE INTO config VALUES ('activation_bytes', 'cafeb0bb');
+
+ALTER TABLE queue ADD COLUMN speed REAL DEFAULT 1 NOT NULL;
+

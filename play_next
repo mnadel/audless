@@ -38,7 +38,7 @@ if [ -f $TRACKLOG ]; then
 fi
 
 activation=$(sqlite3 ${dir}/audless.db "SELECT value FROM config WHERE key='activation_bytes'")
-next_up=$(sqlite3 ${dir}/audless.db "SELECT file,pos FROM queue WHERE pos <= end-30 ORDER BY rank LIMIT 1")
+next_up=$(sqlite3 ${dir}/audless.db "SELECT file,pos,speed FROM queue WHERE pos <= end-30 ORDER BY rank LIMIT 1")
 
 if [ "${next_up}" = "" ]; then
     log "queue is empty"
@@ -47,6 +47,7 @@ fi
 
 file=$(echo $next_up | awk -F'|' '{print $1}')
 seek=$(echo $next_up | awk -F'|' '{print $2}')
+speed=$(echo $next_up | awk -F'|' '{print $3}')
 
 if [ ! -f ${file} ]; then
     log "cannot find ${file}, removing from queue"
@@ -65,6 +66,7 @@ SDL_AUDIODRIVER=alsa AUDIODEV=hw nohup ffplay \
     -stats \
     -nodisp \
     -ss ${seek} \
+    -af "atempo=${speed}" \
     "${file}" >/dev/null 2>&1 &
 
 pid=$!
