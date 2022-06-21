@@ -6,12 +6,11 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 script_dir=$(dirname $(readlink -f $0))
+dbfile=${script_dir}/audless.db
 
 usage() {
   cat <<EOF
 Usage: $(basename "${BASH_SOURCE[0]}") [-h] [-v] [-l] -t TRACK [-p POSITION] [-r RANK] [-s SPEED]
-
-Script description here.
 
 Available options:
 
@@ -102,11 +101,10 @@ parse_params() {
 parse_params "$@"
 setup_colors
 
-dbfile=${script_dir}/audless.db
 [ ! -f ${dbfile} ] && die "missing database"
 
 if [ ${listing} -eq 1 ]; then
-    sqlite3 ${dbfile} "select * from queue order by rank"
+    sqlite3 ${dbfile} "select 'title='||file||', pos='||pos||', speed='||speed||', rank='||rank from queue order by rank"
     exit $?
 fi
 
