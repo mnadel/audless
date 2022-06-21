@@ -104,7 +104,7 @@ setup_colors
 [ ! -f ${dbfile} ] && die "missing database"
 
 if [ ${listing} -eq 1 ]; then
-    sqlite3 ${dbfile} "select 'title='||file||', pos='||pos||', speed='||speed||', rank='||rank from queue order by rank"
+    sqlite3 ${dbfile} "select 'file='||file||', pos='||pos||', speed='||speed||', rank='||rank from queue order by rank"
     exit $?
 fi
 
