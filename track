@@ -41,6 +41,8 @@ log "tracking player at pid ${pid} as $USER"
 # with the `-stats` flag, ffplay will write the current position in the stream (in seconds) to STDOUT.
 # we use strace to capture those `write` syscalls, parse out the position within the stream, then write
 # that to our database (and we use `timeout`` to exit strace after 0.1 seconds).
+#
+# see also: https://github.com/rapiz1/catp
 while [ -f ${pidfile} ]; do
     sleep 30
     pos=$(timeout 0.1 strace -p${pid} -s9999 -e write=1 2>&1 | grep write | tail -1 | awk '{print $3}')
